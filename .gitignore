@@ -1,0 +1,7 @@
+red_atlas_challenge
+.env
+# Ignorar archivos compilados de Python
+*.pyc
+
+# Ignorar la carpeta __pycache__
+__pycache__/

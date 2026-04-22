@@ -5,6 +5,8 @@ load_dotenv()
 
 class Settings:
     BASE_DIR = os.getcwd()
+    BASE_LINK = "https://www.zillow.com/pr/"
+    DB_PATH = "zillow_props.db"
 
     @classmethod 
     def get_dir(cls, *args) -> str: 

@@ -82,7 +82,7 @@ class Scraping:
                     )
                     with open(data_path, "w", encoding="utf-8") as f:
                         json.dump(list_props, f, ensure_ascii=False, indent=4)
-
+                    # self.logger.info(list_props)
                     self.logger.info(f"SE GUARDARON {len(list_props)} REGISTROS DE {filter_button_text.upper()} EN: {data_path}")
                     return list_props
 

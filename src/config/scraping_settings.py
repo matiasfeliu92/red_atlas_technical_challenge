@@ -29,6 +29,10 @@ class ScrapingSettings(Settings):
         }
         self._playwright = None
         self._browser = None
+        self.web_paths = [
+            {"path": "sales", "filter": "For sale"}, 
+            {"path": "rentals", "filter": "For rent"}
+        ]
 
 
     def get_browser_page(self) -> Page:

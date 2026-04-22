@@ -5,3 +5,4 @@ red_atlas_challenge
 
 # Ignorar la carpeta __pycache__
 __pycache__/
+*.png

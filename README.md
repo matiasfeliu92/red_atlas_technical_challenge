@@ -119,6 +119,12 @@ Tabla: `listings` (`src/models/listing.py`)
 - `scraped_at` (String, datetime UTC ISO)
 - `status` (String)
 
+Tabla: `errors` (`src/models/errors.py`)  (Donde quedan almacenados los logs de ejecucion en caso de error)
+
+- `id` (PK, Integer)
+- `timestamp` (String, datetime UTC ISO)
+- `error` (String) (json with error type and message)
+
 ## 4) Tecnologías usadas
 
 - **Python 3.10**

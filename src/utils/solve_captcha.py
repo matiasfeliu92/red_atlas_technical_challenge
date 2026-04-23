@@ -1,11 +1,16 @@
 import time
 import random
+from src.scripts.load_errors import LoadErrors
+from src.scripts.load_data import LoadData
+from src.config.manage_db import ManageDB
 from src.config.logger import LoggerConfig
 
 class SolveCaptcha:
     def __init__(self, page):
         self.logger = LoggerConfig.get_logger(self.__class__.__name__)
         self.page = page
+        self.load_data = LoadData(ManageDB())
+        self.load_errors = LoadErrors(ManageDB())
 
     def run(self):
         self.logger.info("BUSCANDO BOTÓN CAPTCHA (MODO AGRESIVO)...")
@@ -99,4 +104,5 @@ class SolveCaptcha:
 
         except Exception as e:
             self.logger.error(f"FALLO EN INTERACCIÓN: {e}")
+            self.load_errors.insert_error({"type": "error", "message": f"FALLO EN INTERACCIÓN: {e}"})
             return False

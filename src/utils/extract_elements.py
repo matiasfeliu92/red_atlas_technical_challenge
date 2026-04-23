@@ -1,11 +1,16 @@
 from playwright.sync_api import Page, Locator, TimeoutError as PlaywrightTimeoutError
 
+from src.scripts.load_errors import LoadErrors
+from src.config.manage_db import ManageDB
+from src.scripts.load_data import LoadData
 from src.config.logger import LoggerConfig
 
 class ExtractElements:
     def __init__(self, page: Page):
         self.page = page
         self.logger = LoggerConfig.get_logger(self.__class__.__name__)
+        self.load_data = LoadData(ManageDB())
+        self.load_errors = LoadErrors(ManageDB())
 
     def safe_find_element(self, selector: str, multiple=False, timeout=20000):
         try:
@@ -21,7 +26,9 @@ class ExtractElements:
                 return locator
         except PlaywrightTimeoutError as e:
             self.logger.error(f"[TimeoutError] {str(e)} | selector={selector}")
+            self.load_errors.insert_error({"type": "timeout", "message": f"[TimeoutError] {str(e)} | selector={selector}"})
             return None
         except Exception as e:
             self.logger.error(f"[Exception] {str(e)} | selector={selector}")
+            self.load_errors.insert_error({"type": "exception", "message": f"[Exception] {str(e)} | selector={selector}"})
             return None

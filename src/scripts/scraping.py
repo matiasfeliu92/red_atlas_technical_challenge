@@ -1,6 +1,9 @@
 import random
 import time
 import json
+from src.scripts.load_errors import LoadErrors
+from src.config.manage_db import ManageDB
+from src.scripts.load_data import LoadData
 from src.config.scraping_settings import ScrapingSettings
 from src.config.logger import LoggerConfig
 from src.utils.extract_elements import ExtractElements
@@ -12,6 +15,8 @@ class Scraping:
         self.scraping_settings = ScrapingSettings()
         self.link = self.scraping_settings.BASE_LINK
         self.logger = LoggerConfig.get_logger(self.__class__.__name__)
+        self.load_data = LoadData(ManageDB())
+        self.load_errors = LoadErrors(ManageDB())
 
         # Obtenemos la página (asegúrate de que get_browser_page use stealth_sync)
         self.page = self.scraping_settings.get_browser_page()
@@ -31,6 +36,7 @@ class Scraping:
             time.sleep(random.uniform(0.5, 1.5))
         except Exception as e:
             self.logger.warning(f"No se pudo ejecutar comportamiento humano: {e}")
+            self.load_errors.insert_error({"type": "warning", "message": f"No se pudo ejecutar comportamiento humano: {e}"})
 
     def scrap(self, path, filter_button_text):
         self.logger.info(f"""NAVEGANDO AL LINK OBJETIVO: {self.link + f"{path}"}""")
@@ -88,5 +94,6 @@ class Scraping:
 
         except Exception as e:
             self.logger.error(f"FALLO CRÍTICO EN LA EXTRACCIÓN: {str(e)}")
+            self.load_errors.insert_error({"type": "critical", "message": f"FALLO CRÍTICO EN LA EXTRACCIÓN: {str(e)}"})
             self.page.screenshot(path="debug_error.png")
             return None

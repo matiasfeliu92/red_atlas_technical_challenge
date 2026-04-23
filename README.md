@@ -79,6 +79,8 @@ Path usado para resultados:
 - `data/for_sale/data_page.json`
 - `data/for_rent/data_page.json`
 
+Estos dos archivos JSON se generan como respaldo intermedio para validar campos (por ejemplo `price`, `address`, `beds`, `baths`) antes de persistir los datos en la base de datos.
+
 ### 3.4 Esquema de datos crudo (muestra de `listResults`)
 
 Campos comunes observados en los JSON de salida:
@@ -118,6 +120,12 @@ Tabla: `listings` (`src/models/listing.py`)
 - `data` (Text, JSON serializado de `homeInfo`)
 - `scraped_at` (String, datetime UTC ISO)
 - `status` (String)
+
+Tabla: `errors` (`src/models/errors.py`)  (Donde quedan almacenados los logs de ejecucion en caso de error)
+
+- `id` (PK, Integer)
+- `timestamp` (String, datetime UTC ISO)
+- `error` (String) (json with error type and message)
 
 ## 4) Tecnologías usadas
 
@@ -159,16 +167,24 @@ Para no romper el proceso que esta corriendo, guardaría los datos en la base ha
 
 ## Ejecución rápida
 
-1. Crear/activar entorno virtual.
-2. Instalar dependencias:
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/matiasfeliu92/red_atlas_technical_challenge.git
+   ```
+2. Entrar a la carpeta del proyecto:
+   ```bash
+   cd red_atlas_technical_challenge
+   ```
+3. Crear/activar entorno virtual.
+4. Instalar dependencias:
    ```bash
    pip install -r requirements.txt
    ```
-3. Instalar navegador de Playwright:
+5. Instalar navegador de Playwright:
    ```bash
    playwright install chromium
    ```
-4. Ejecutar:
+6. Ejecutar:
    ```bash
    python main.py
    ```

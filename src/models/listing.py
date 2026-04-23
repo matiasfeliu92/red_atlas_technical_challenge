@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, String, Integer, Float, Text
 from sqlalchemy.orm import declarative_base, sessionmaker
 from src.config.settings import Settings
 
-Base = declarative_base()
+from src.models.base import Base
 
 class Listing(Base):
     __tablename__ = "listings"

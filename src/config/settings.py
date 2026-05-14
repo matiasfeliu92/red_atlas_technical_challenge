@@ -6,7 +6,8 @@ load_dotenv()
 class Settings:
     BASE_DIR = os.getcwd()
     BASE_LINK = "https://www.zillow.com/pr/"
-    DB_PATH = "zillow_props.db"
+    MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+    MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "zillow_props")
 
     @classmethod 
     def get_dir(cls, *args) -> str: 

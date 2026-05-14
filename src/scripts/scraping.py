@@ -23,6 +23,7 @@ class Scraping:
 
         self.extract_elements = ExtractElements(self.page)
         self.captcha_solver = SolveCaptcha(self.page)
+        self.list_props = None
 
     def _human_behavior(self):
         """Simula scroll y movimientos aleatorios para evitar detección."""
@@ -40,7 +41,9 @@ class Scraping:
 
     def scrap(self, path, filter_button_text):
         self.logger.info(f"""NAVEGANDO AL LINK OBJETIVO: {self.link + f"{path}"}""")
-        self.page.goto(self.link + f"{path}", wait_until="domcontentloaded")
+        current_path = f"{path}"
+        self.logger.info(f"NAVEGANDO A PÁGINA: {self.link + current_path}")
+        self.page.goto(self.link + current_path, wait_until="domcontentloaded")
         self._human_behavior()
         solved = self.captcha_solver.run()
 
@@ -50,6 +53,9 @@ class Scraping:
         # 3. EXTRACCIÓN DE DATOS
         try:
             # Localizamos el contenedor de filtros
+            self.page.wait_for_selector(
+                self.scraping_settings.selectors["div"], state="visible", timeout=15000
+            )
             div_filter_buttons = self.extract_elements.safe_find_element(
                 self.scraping_settings.selectors["div"]
             )
@@ -57,7 +63,11 @@ class Scraping:
 
             for div in filter_buttons:
                 span = div.locator("span").first
-                span_text = span.inner_text()
+                try:
+                    span_text = span.inner_text(timeout=5000)
+                except Exception as span_error:
+                    self.logger.warning(f"No se pudo leer span text: {span_error}")
+                    continue
 
                 if filter_button_text in span_text:
                     self.logger.info(
@@ -74,7 +84,7 @@ class Scraping:
                     raw_json = self.page.locator("#__NEXT_DATA__").inner_html()
 
                     data_full = json.loads(raw_json)
-                    list_props = (
+                    self.list_props = (
                         data_full.get("props", {})
                         .get("pageProps", {})
                         .get("searchPageState", {})
@@ -82,18 +92,10 @@ class Scraping:
                         .get("searchResults", {})
                         .get("listResults", [])
                     )
-                    self.scraping_settings.create_dir("data", filter_button_text.lower().replace(" ", "_"))
-                    data_path = self.scraping_settings.get_dir(
-                        "data", filter_button_text.lower().replace(" ", "_"), f"data_page.json"
-                    )
-                    with open(data_path, "w", encoding="utf-8") as f:
-                        json.dump(list_props, f, ensure_ascii=False, indent=4)
-                    # self.logger.info(list_props)
-                    self.logger.info(f"SE GUARDARON {len(list_props)} REGISTROS DE {filter_button_text.upper()} EN: {data_path}")
-                    return list_props
+            self.logger.info(f"EXTRACCIÓN COMPLETADA CON: {len(self.list_props) if self.list_props else 0} REGISTROS DE {filter_button_text.upper()}")        
+            return self.list_props
 
         except Exception as e:
             self.logger.error(f"FALLO CRÍTICO EN LA EXTRACCIÓN: {str(e)}")
             self.load_errors.insert_error({"type": "critical", "message": f"FALLO CRÍTICO EN LA EXTRACCIÓN: {str(e)}"})
             self.page.screenshot(path="debug_error.png")
-            return None

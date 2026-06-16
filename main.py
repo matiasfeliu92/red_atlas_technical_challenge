@@ -13,4 +13,4 @@ if __name__ == "__main__":
         for page_number in range(1,8):
             url = path["path"] + f"/{page_number}_p"
             scraped_data = scraping.scrap(url, path["filter"])
-            load_data.insert_listings(scraped_data)
+            load_data.save_json_file(path["path"], scraped_data, page_number)
